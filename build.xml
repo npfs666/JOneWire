@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hello" default="remote-run" basedir="."
+<project name="JOneWire2022" default="remote-run" basedir="."
 	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
-
+	
     <!-- Setup RASPBERRY PI properties -->
 	<property name="raspberrypi" value="192.168.1.15" />
 	<property name="raspberryfolder" value="~" />
