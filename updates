@@ -1,0 +1,4 @@
+Updates
+
+2022-01-04 :
+- Correction du flush pour faire gagner du giga temps de réponse (et on communique plus avec des timeout)
