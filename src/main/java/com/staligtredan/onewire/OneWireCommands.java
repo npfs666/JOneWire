@@ -11,4 +11,6 @@ public interface OneWireCommands {
 
 	public final static byte accessWrite = (byte) 0x5A;
 	public final static byte accessRead = (byte) 0xF5;
+	
+	
 }

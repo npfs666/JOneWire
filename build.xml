@@ -3,7 +3,7 @@
 	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 	
     <!-- Setup RASPBERRY PI properties -->
-	<property name="raspberrypi" value="192.168.1.15" />
+	<property name="raspberrypi" value="192.168.1.10" />
 	<property name="raspberryfolder" value="~" />
 	<property name="username" value="gaou" />
 	<property name="password" value="oiub8re1" />

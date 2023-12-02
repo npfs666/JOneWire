@@ -43,12 +43,12 @@
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
-			<version>2.7.0</version>
+			<version>2.10.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-			<version>1.4.19</version>
+			<version>1.4.20</version>
 		</dependency>
 	</dependencies>
 	
@@ -59,16 +59,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
+				<version>3.11.0</version>
 				<configuration>
 					 <release>11</release>
 				</configuration>
 			</plugin>
 
-			<!-- Plugin to create a single jar that includes all dependencies 
+			<!-- Plugin to create a single jar that includes all dependencies -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.6.0</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -76,7 +76,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>com.staligtredan.onewire.Dev2</mainClass>
+							<mainClass>com.staligtredan.onewire.Dev3</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -90,7 +90,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			-->
+			
 			
 		</plugins>
 	</build>

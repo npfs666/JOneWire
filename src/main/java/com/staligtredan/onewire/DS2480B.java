@@ -1,5 +1,6 @@
 package com.staligtredan.onewire;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,8 +30,15 @@ public class DS2480B {
 
 	private final static byte[] commandDataMode = { (byte) 0xE1 };
 	private final static byte[] commandCommandMode = { (byte) 0xE3 };
+	
+	private final static byte[] commandSearchAcceleratorOn = { (byte) 0xB1 };
+	private final static byte[] commandSearchAcceleratorOff = { (byte) 0xA1};
+	
+	public final static byte commandSearchRom= (byte) 0xF0;
 
 	private final static Level lowLevelLogs = Level.FINE;
+
+	public static ArrayList<Byte[]> OWList = new ArrayList<Byte[]>();
 
 
 	/**
@@ -40,7 +48,6 @@ public class DS2480B {
 	 * @param baudRate
 	 */
 	public static void openPort( String portDescriptor, int baudRate ) {
-
 
 		comPort = SerialPort.getCommPort(portDescriptor);
 		
@@ -398,6 +405,24 @@ public class DS2480B {
 		return true;
 	}
 
+	public static boolean setSearchAcceleratorOn() {
+
+		flush();
+
+		comPort.writeBytes(commandSearchAcceleratorOn, 1);
+
+		return true;
+	}
+
+	public static boolean setSearchAcceleratorOff() {
+
+		flush();
+
+		comPort.writeBytes(commandSearchAcceleratorOff, 1);
+
+		return true;
+	}
+
 
 
 	/**
@@ -423,13 +448,195 @@ public class DS2480B {
 		
 		byte[] adress = new byte[8];
 		waitData(adress);
-		DS2480B.setDataMode();
+		DS2480B.setCommandMode();
 		DS2480B.reset();
 		
 		for( byte b : adress ) {
 
 			System.out.println(Integer.toHexString(b));
 		}
+		
+		
 	}
+	
+	
+	
+	public static void searchROMs()
+	{
+	  int loop;
+	  byte[] TData = new byte[16];
+	  byte[] RData = new byte[16];
+	  int stopFlag = 0;
+
+	  // reset RecoverROM and generate the starting TData
+	  RecoverROM(null,TData);
+
+	  OWList.clear();
+	  
+	  for( int i = 0; i < 30; i++) {
+		  	
+		  if(stopFlag != 0 ) break;
+		  
+		  	reset();
+			setDataMode();
+			sendData(commandSearchRom);
+			setCommandMode();
+			setSearchAcceleratorOn();
+			setDataMode();
+
+		    // transmit the TDATA and receive the RDATA.
+		    for(loop=0;loop<16;loop++)
+		    {
+		    	
+		    	byte[] out = new byte[1];
+		    	out[0] = TData[loop];
+		    	
+		    	comPort.writeBytes(out, 1);
+		    	
+		    	byte[] in = new byte[1];
+		    	
+				comPort.readBytes(in, 1);
+				
+				RData[loop] = in[0];
+		    }
+
+		    //decode recovered ROM and generate next Search value
+		    stopFlag = RecoverROM(RData,TData);
+		    
+		    setCommandMode();
+			setSearchAcceleratorOff();
+			setDataMode();
+			
+			setCommandMode();
+			reset();
+	  }
+	  
+	  //System.out.println(OWList);
+	  for( Byte[] b : OWList ) {
+		  System.out.println(print(b));
+	  }
+	}
+	
+	public static String print(Byte[] bytes) {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("[ ");
+	    for (byte b : bytes) {
+	        sb.append(String.format("0x%02X ", b));
+	    }
+	    sb.append("]");
+	    return sb.toString();
+	}
+	
+	// used to keep track of which discrepancy bits have already been flipped.
+	static byte[] TREE= new byte[64];
+	public static int RecoverROM(byte[] ReceiveData, byte[] TransmitData)
+	{
+	  int loop;
+	  int result;
+	  byte[] TROM = new byte[64];   // the transmit value being generated
+	  byte[] RROM = new byte[64];   // the ROM recovered from the received data
+	  byte[] RDIS = new byte[64];   // the discrepancy bits in the received data
+
+	  // If receivedata is NULL, this is the first run. Transmit data should be all
+	  // zeros, and the discrepancy tree must also be reset.
+	  if(ReceiveData == null)
+	  {
+	    for(loop = 0; loop < 64; loop++) TREE[loop] = 0;
+	    for(loop = 0; loop < 16; loop++) TransmitData[loop] = 0;
+	    return 1;
+	  }
+	  // de-interleave the received data into the new ROM code and the discrepancy bits
+	  for(loop = 0; loop < 16; loop++)
+	  {
+	    if((ReceiveData[loop] & 0x02) == 0x00) RROM[loop*4] = 0; else RROM[loop*4 ] = 1;
+	    if((ReceiveData[loop] & 0x08) == 0x00) RROM[loop*4+1] = 0; else RROM[loop*4+1] = 1;
+	    if((ReceiveData[loop] & 0x20) == 0x00) RROM[loop*4+2] = 0; else RROM[loop*4+2] = 1;
+	    if((ReceiveData[loop] & 0x80) == 0x00) RROM[loop*4+3] = 0; else RROM[loop*4+3] = 1;
+
+	    if((ReceiveData[loop] & 0x01) == 0x00) RDIS[loop*4] = 0; else RDIS[loop*4 ] = 1;
+	    if((ReceiveData[loop] & 0x04) == 0x00) RDIS[loop*4+1] = 0; else RDIS[loop*4+1] = 1;
+	    if((ReceiveData[loop] & 0x10) == 0x00) RDIS[loop*4+2] = 0; else RDIS[loop*4+2] = 1;
+	    if((ReceiveData[loop] & 0x40) == 0x00) RDIS[loop*4+3] = 0; else RDIS[loop*4+3] = 1;
+	  }
+
+	  // initialize the transmit ROM to the recovered ROM
+
+	  for(loop = 0; loop < 64; loop++) TROM[loop] = RROM[loop];
+
+	  // work through the new transmit ROM backwards setting every bit to 0 until the
+	  // most significant discrepancy bit which has not yet been flipped is found.
+	  // The transmit ROM bit at that location must be flipped.
+
+	  for(loop = 63; loop >= 0; loop--)
+	  {
+	    // This is a new discrepancy bit. Set the indicator in the tree, flip the
+	    // transmit bit, and then break from the loop.
+
+	    if((TREE[loop] == 0) && (RDIS[loop] == 1) && (TROM[loop] == 0))
+	    {
+	      TREE[loop] = 1;
+	      TROM[loop] = 1;
+	      break;
+	    }
+	    if((TREE[loop] == 0) && (RDIS[loop] == 1) && (TROM[loop] == 1))
+	    {
+	      TREE[loop] = 1;
+	      TROM[loop] = 0;
+	      break;
+	    }
+
+	    // This bit has already been flipped, remove it from the tree and continue
+	    // setting the transmit bits to zero.
+
+	    if((TREE[loop] == 1) && (RDIS[loop] == 1)) TREE[loop] = 0;
+	    TROM[loop] = 0;
+	  }
+	  result = loop;   // if loop made it to -1, there are no more discrepancy bits
+	                   // and the search can end.
+
+	  // Convert the individual transmit ROM bit into a 16 byte format
+	  // every other bit is don't care.
+	  for(loop = 0; loop < 16; loop++)
+	  {
+	    TransmitData[loop] = (byte) ((TROM[loop*4]<<1) +
+	                         (TROM[loop*4+1]<<3) +
+	                         (TROM[loop*4+2]<<5) +
+	                         (TROM[loop*4+3]<<7));
+	  }
+
+	  // Convert the individual recovered ROM bits into an 8 byte format
+	  Byte[] addr = new Byte[8];
+	  for(loop = 0; loop < 8; loop++) {
+		  
+	    byte b = (byte) ((RROM[loop*8]) +
+	                    (RROM[loop*8+1]<<1) +
+	                    (RROM[loop*8+2]<<2) +
+	                    (RROM[loop*8+3]<<3) +
+	                    (RROM[loop*8+4]<<4) +
+	                    (RROM[loop*8+5]<<5) +
+	                    (RROM[loop*8+6]<<6) +
+	                    (RROM[loop*8+7]<<7));
+	    addr[loop] = b;
+	  }
+	  OWList.add(addr);
+	  
+	  if(result == -1) return 1;   // There are no DIS bits that haven't been flipped
+	                               // Tell the main loop the seach is over
+	  return 0;   // else continue
+	}
+	
+	
+
+	public static final byte[] toPrimitives(Byte[] oBytes)
+	{
+	    byte[] bytes = new byte[oBytes.length];
+
+	    for(int i = 0; i < oBytes.length; i++) {
+	        bytes[i] = oBytes[i];
+	    }
+
+	    return bytes;
+	}
+	
 
 }
