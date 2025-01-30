@@ -22,9 +22,9 @@ public class Dev3 {
 
 		DS2480B.searchROMs();
 		
-		DS18B20.convert(DS2480B.toPrimitives(DS2480B.OWList.get(0)), false, null);
+		DS18B20.convert(DS2480B.OWList.get(0), false, null);
 		Thread.sleep(1000);
-		double tmp = DS18B20.readTemp(DS2480B.toPrimitives(DS2480B.OWList.get(0)));
+		double tmp = DS18B20.readTemp(DS2480B.OWList.get(0));
 		System.out.println(tmp);
 
 		DS2480B.close();

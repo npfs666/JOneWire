@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 public class DS18B20 implements OneWireCommands {
 
+	public final static byte familyCode = 0x28;
+	
 	public final static byte resolution9Bits = 0x1F;
 	public final static byte resolution10Bits = 0x3F;
 	public final static byte resolution11Bits = 0x5F;
@@ -34,6 +36,18 @@ public class DS18B20 implements OneWireCommands {
 
 			return false;
 		}
+		
+		byte resol = resolution12Bits;
+		switch(resolution) {
+			case 9: resol = resolution9Bits;
+				break;
+			case 10: resol = resolution10Bits;
+				break;
+			case 11: resol = resolution11Bits;
+				break;
+			case 12: resol = resolution12Bits;
+				break;
+		}
 
 		DS2480B.reset();
 		DS2480B.setDataMode();
@@ -53,7 +67,7 @@ public class DS18B20 implements OneWireCommands {
 		DS2480B.sendData(writeScratchpad);
 		DS2480B.sendData((byte) 0);
 		DS2480B.sendData((byte) 0);
-		DS2480B.sendData(resolution);
+		DS2480B.sendData(resol);
 
 		DS2480B.setCommandMode();
 		DS2480B.reset();

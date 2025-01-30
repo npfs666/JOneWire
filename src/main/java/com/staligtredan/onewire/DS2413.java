@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 
 public class DS2413 implements OneWireCommands {
 
+	public final static byte familyCode = 0x3A;
+	
 	public static byte pioAMask = (byte) 0xFE;
 	public static byte pioBMask = (byte) 0xFD;
 	

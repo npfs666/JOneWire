@@ -38,7 +38,7 @@ public class DS2480B {
 
 	private final static Level lowLevelLogs = Level.FINE;
 
-	public static ArrayList<Byte[]> OWList = new ArrayList<Byte[]>();
+	public static ArrayList<byte[]> OWList = new ArrayList<>();
 
 
 	/**
@@ -512,18 +512,19 @@ public class DS2480B {
 	  }
 	  
 	  //System.out.println(OWList);
-	  for( Byte[] b : OWList ) {
+	  /*for( Byte[] b : OWList ) {
 		  System.out.println(print(b));
-	  }
+	  }*/
 	}
 	
-	public static String print(Byte[] bytes) {
+	public static String print(byte[] bytes) {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append("[ ");
 	    for (byte b : bytes) {
 	        sb.append(String.format("0x%02X ", b));
 	    }
 	    sb.append("]");
+	    System.out.println(sb.toString());
 	    return sb.toString();
 	}
 	
@@ -605,7 +606,7 @@ public class DS2480B {
 	  }
 
 	  // Convert the individual recovered ROM bits into an 8 byte format
-	  Byte[] addr = new Byte[8];
+	  byte[] addr = new byte[8];
 	  for(loop = 0; loop < 8; loop++) {
 		  
 	    byte b = (byte) ((RROM[loop*8]) +

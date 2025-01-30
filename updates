@@ -2,3 +2,6 @@ Updates
 
 2022-01-04 :
 - Correction du flush pour faire gagner du giga temps de réponse (et on communique plus avec des timeout)
+
+2023-12-01 :
+- Rajout de la recherche d'élements 1-wire sur le réseau
