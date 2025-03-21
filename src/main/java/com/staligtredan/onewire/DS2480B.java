@@ -439,7 +439,7 @@ public class DS2480B {
 		return true;
 	}
 	
-	public static void readRom() {
+	/*public static void readRom() {
 		
 		//flush();
 		DS2480B.reset();
@@ -457,7 +457,7 @@ public class DS2480B {
 		}
 		
 		
-	}
+	}*/
 	
 	
 	
@@ -524,7 +524,7 @@ public class DS2480B {
 	        sb.append(String.format("0x%02X ", b));
 	    }
 	    sb.append("]");
-	    System.out.println(sb.toString());
+	    //System.out.println(sb.toString());
 	    return sb.toString();
 	}
 	
@@ -628,7 +628,7 @@ public class DS2480B {
 	
 	
 
-	public static final byte[] toPrimitives(Byte[] oBytes)
+	/*public static final byte[] toPrimitives(Byte[] oBytes)
 	{
 	    byte[] bytes = new byte[oBytes.length];
 
@@ -637,7 +637,7 @@ public class DS2480B {
 	    }
 
 	    return bytes;
-	}
+	}*/
 	
 
 }

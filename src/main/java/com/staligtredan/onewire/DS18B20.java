@@ -13,6 +13,12 @@ public class DS18B20 implements OneWireCommands {
 	public final static byte resolution10Bits = 0x3F;
 	public final static byte resolution11Bits = 0x5F;
 	public final static byte resolution12Bits = 0x7F;
+	
+	/* conversion time in ms */
+	public final static int conversionTime9Bits = 94;
+	public final static int conversionTime10Bits = 188;
+	public final static int conversionTime11Bits = 375;
+	public final static int conversionTime12Bits = 750;
 
 
 	private static void log(Level level, String msg) {
@@ -210,5 +216,31 @@ public class DS18B20 implements OneWireCommands {
 		}
 			
 		return truncatedDouble;
+	}
+	
+	/**
+	 * Returns the time in ms needed to convert the temperature
+	 * 
+	 * @param resolution in bits
+	 * @return
+	 */
+	public static int conversionTimeMs(int resolution) {
+		
+		switch(resolution) {
+			case 9:
+				return conversionTime9Bits;
+			
+			case 10:
+				return conversionTime10Bits;
+			
+			case 11:
+				return conversionTime11Bits;
+			
+			case 12:
+				return conversionTime12Bits;
+				
+			default:
+				return conversionTime12Bits;
+		}
 	}
 }
